@@ -6,6 +6,7 @@
 2. * calibrationMethod 对应手眼标定的种类(暂时只有EYE_IN_HAND)
    * imagesNum 拍摄标定板的图片的数目
    * dataDectory 放置标定数据的文件夹
+   * calPoseFormat 标定板位姿的存储格式
    * armPoseFormat 机械臂末端位姿的存储格式
    * calPoseDataFile 相机拍摄标定板数据的文件名
    * gripperPoseDataFile 对应机械臂示教器对应机械臂末端位姿数据文件名
