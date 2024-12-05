@@ -29,6 +29,7 @@ private:
     int imagesNum;
     std::string dataDectory;
     std::string armPoseFormat;
+    std::string calPoseFormat;
     std::string calPoseDataFile;
     std::string gripperPoseDataFile;
     bool usePicture;
@@ -46,7 +47,7 @@ public:
 private:
 
     // 定义手眼标定矩阵计算相关参数
-    bool is_quaternion;
+    bool arm_pose_is_quaternion, cal_pose_is_quaternion;
 
     std::vector<cv::Mat> R_gripper2base;
     std::vector<cv::Mat> t_gripper2base;

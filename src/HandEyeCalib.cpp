@@ -15,12 +15,14 @@ void HandEyeCalib::get_calib_config_data(const std::string &json_path){
     this->imagesNum = parseJsonInt(json_path, "imagesNum");
     this->dataDectory = parseJsonString(json_path, "dataDectory");
     this->armPoseFormat = parseJsonString(json_path, "armPoseFormat");
+    this->calPoseFormat = parseJsonString(json_path, "calPoseFormat");
     this->calPoseDataFile = parseJsonString(json_path, "calPoseDataFile");
     this->gripperPoseDataFile = parseJsonString(json_path, "gripperPoseDataFile");
     this->usePicture = parseJsonBool(json_path, "usePicture");
     this->imageDataDectory = parseJsonString(json_path, "imageDataDectory");
 
-    this->is_quaternion = armPoseFormat == "quaternion";
+    this->arm_pose_is_quaternion = armPoseFormat == "quaternion";
+    this->cal_pose_is_quaternion = calPoseFormat == "quaternion";
     this->calPosePath = config_path + "/" + dataDectory + "/" + calPoseDataFile;
     this->gripperPosePath = config_path + "/" + dataDectory + "/" + gripperPoseDataFile;
 
@@ -32,7 +34,8 @@ void HandEyeCalib::get_calib_config_data(const std::string &json_path){
     std::cout << "gripperPoseDataFile : " << gripperPoseDataFile << std::endl;
     std::cout << "usePicture : " << usePicture << std::endl;
     std::cout << "imageDataDectory : " << imageDataDectory << std::endl;
-    std::cout << "is_quaternion : " << is_quaternion << std::endl;
+    std::cout << "arm_pose_is_quaternion : " << arm_pose_is_quaternion << std::endl;
+    std::cout << "cal_pose_is_quaternion : " << cal_pose_is_quaternion << std::endl;
     std::cout << "calPosePath : " << calPosePath << std::endl;
     std::cout << "gripperPosePath : " << gripperPosePath << std::endl;
 }
@@ -48,14 +51,14 @@ void HandEyeCalib::reform_hand_eye_data() {
         end_pose = ToolPose.row(int(i)).clone();
 
         // 相机标定板转移向量转旋转矩阵
-        tmp = attitude_vector_to_Matrix(board_pose, false, ""); 
+        tmp = attitude_vector_to_Matrix(board_pose, cal_pose_is_quaternion, ""); 
         vecH_target2cam.push_back(tmp);
         rt2r_t(tmp, tempR, tempT);
         R_target2cam.push_back(tempR);
         t_target2cam.push_back(tempT);
 
         // 机械臂末端位姿转旋转矩阵
-        tmp = attitude_vector_to_Matrix(end_pose, is_quaternion, "xyz");
+        tmp = attitude_vector_to_Matrix(end_pose, arm_pose_is_quaternion, "xyz");
         vecH_gripper2base.push_back(tmp);
         rt2r_t(tmp, tempR, tempT);
         R_gripper2base.push_back(tempR);
@@ -147,11 +150,11 @@ int HandEyeCalib::run(){
     cv::cv2eigen(R_cam2gripper, R_cam2gripper_eigen);
     Eigen::Quaterniond Q(R_cam2gripper_eigen);
 
-    std::cout << "位移量: " << t_cam2gripper.at<double>(0, 0) << ","
+    std::cout << "位移量(xyz): " << t_cam2gripper.at<double>(0, 0) << ","
                         << t_cam2gripper.at<double>(0, 1) << ","
                         << t_cam2gripper.at<double>(0, 2) << std::endl;
     
-    std::cout << "四元数: " << Q.w() << ","
+    std::cout << "四元数(wxyz): " << Q.w() << ","
                             << Q.x() << ","
                             << Q.y() << ","
                             << Q.z() << std::endl;
